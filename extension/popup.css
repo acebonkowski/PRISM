@@ -1,0 +1,558 @@
+/**
+ * popup.css — Prism Extension Popup
+ *
+ * Glassmorphism card: frosted semi-transparent white, rounded corners,
+ * drop shadow. Chrome extension popups DO support backdrop-filter.
+ * The filter blurs Chrome's own UI behind the popup, giving the frosted look.
+ * Requires: body { background: transparent } — set below.
+ */
+
+/* ════════════════════════════════════════════════════════
+   TOKENS
+   ════════════════════════════════════════════════════════ */
+:root {
+  --blue:           #3471CE;   /* primary CTA + Verified score color */
+  --blue-hover:     #2a5db0;
+  --periwinkle:     #7B6EF6;   /* Contested score color */
+  --red-wine:       #8B1A2F;   /* Disputed score color */
+
+  --ink:            #0F0B3E;   /* primary text, section headers — per design spec */
+  --ink-mid:        #555570;   /* secondary / domain text */
+  --ink-light:      #9090A8;   /* muted / metadata */
+
+  --surface:        #FFFFFF;
+  --surface-hover:  #F8F8FC;
+  --border-subtle:  rgba(200, 200, 230, 0.35);
+
+  /* Badge fills */
+  --badge-blue-bg:   rgba(52, 113, 206, 0.12);
+  --badge-blue-txt:  #3471CE;
+  --badge-red-bg:    rgba(139, 26, 47, 0.10);
+  --badge-red-txt:   #8B1A2F;
+  --badge-gray-bg:   rgba(100, 100, 130, 0.10);
+  --badge-gray-txt:  #555570;
+  --badge-green-bg:  rgba(20, 140, 90, 0.10);
+  --badge-green-txt: #148C5A;
+
+  --card-pad: 20px;
+  --r-card:   14px;
+  --r-popup:  24px;
+}
+
+/* ════════════════════════════════════════════════════════
+   RESET
+   ════════════════════════════════════════════════════════ */
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { background: #fff; }
+
+body {
+  font-family: 'Nunito', system-ui, -apple-system, sans-serif;
+  background: #fff;
+  color: var(--ink);
+  width: 360px;
+  overflow: hidden;
+}
+
+/* ════════════════════════════════════════════════════════
+   CARD — solid white, rounded, drop shadow
+   (backdrop-filter is removed: Chrome extension popup
+   windows don't expose the webpage behind the popup frame,
+   so blur would only affect Chrome's own UI chrome which
+   is not visible enough to be worth the complexity.)
+   ════════════════════════════════════════════════════════ */
+.popup-wrap {
+  width: 360px;
+  min-height: 480px;
+  background: var(--surface);
+  border-radius: 0;   /* no rounded corners on parent card */
+  box-shadow:
+    0 12px 40px rgba(0, 0, 0, 0.18),
+    0 3px 10px  rgba(0, 0, 0, 0.10);
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.popup-wrap::-webkit-scrollbar { width: 4px; }
+.popup-wrap::-webkit-scrollbar-track { background: transparent; }
+.popup-wrap::-webkit-scrollbar-thumb { background: var(--border-subtle); border-radius: 99px; }
+
+/* ════════════════════════════════════════════════════════
+   UTILITY
+   ════════════════════════════════════════════════════════ */
+.hidden { display: none !important; }
+
+/* ════════════════════════════════════════════════════════
+   SCREENS
+   ════════════════════════════════════════════════════════ */
+.screen {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  min-height: 480px;
+}
+
+/* ════════════════════════════════════════════════════════
+   START SCREEN
+   ════════════════════════════════════════════════════════ */
+/* Hero visual: logo centered above the illustration */
+.hero-visual {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 24px var(--card-pad) 0;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.hero-illustration {
+  width: 100%;
+  height: 260px;
+  object-fit: contain;
+  object-position: center center;
+}
+
+.start-body {
+  flex: 1;
+  padding: 0 var(--card-pad) 20px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;   /* text floats toward button */
+  gap: 12px;
+  text-align: center;
+}
+
+.start-title {
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.2;
+}
+
+.start-desc {
+  font-size: 15px;
+  color: var(--ink-mid);
+  line-height: 1.6;
+}
+
+/* Branded footer strip — gradient background so white logo is visible */
+.start-brand-footer {
+  background: linear-gradient(135deg, #BDB4FF 0%, #8B82F0 50%, #6156D4 100%);
+  padding: 14px var(--card-pad);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.start-logo {
+  width: 30px;
+  height: auto;
+  /* SVG fill is white — stays white against the gradient */
+}
+
+.start-footer {
+  padding: 0 var(--card-pad) var(--card-pad);
+}
+
+/* ════════════════════════════════════════════════════════
+   LOADING SCREEN
+   ════════════════════════════════════════════════════════ */
+.loading-topbar {
+  display: flex;
+  justify-content: flex-end;
+  padding: 14px var(--card-pad) 0;
+}
+
+/* X must be clearly dark */
+.loading-topbar .icon-btn {
+  color: var(--ink);
+}
+
+.loading-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 22px;
+  padding: 0 var(--card-pad) 70px;
+}
+
+.logo-spin {
+  width: 56px;
+  height: 56px;
+  animation: spin-cw 1.1s linear infinite;
+  transform-origin: 50% 50%;
+  filter: drop-shadow(0 4px 16px rgba(88, 153, 244, 0.45));
+}
+
+.logo-spin-sm {
+  width: 22px;
+  height: 22px;
+  animation: spin-cw 0.9s linear infinite;
+  transform-origin: 50% 50%;
+  flex-shrink: 0;
+}
+
+@keyframes spin-cw {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+.loading-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.loading-sub {
+  font-size: 15px;
+  color: var(--ink-mid);
+  margin-top: -10px;
+  text-align: center;
+}
+
+.loading-title,
+#counterarg-loading-title {
+  transition: opacity 0.25s ease-in-out;
+}
+
+/* ════════════════════════════════════════════════════════
+   ERROR STATE
+   ════════════════════════════════════════════════════════ */
+.error-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  padding: 40px var(--card-pad);
+  text-align: center;
+}
+
+.error-icon { color: var(--red-wine); }
+
+.error-message {
+  font-size: 15px;
+  color: var(--ink-mid);
+  line-height: 1.5;
+  max-width: 260px;
+}
+
+/* ════════════════════════════════════════════════════════
+   RESULTS SCREEN
+   ════════════════════════════════════════════════════════ */
+#results { min-height: unset; }
+
+/* Row 1: prism logo left, share icon right */
+.results-topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px var(--card-pad) 10px;
+}
+
+/* Row 2: score number — left aligned, extra top gap from topbar */
+.score-headline {
+  display: flex;
+  align-items: baseline;
+  gap: 1px;
+  padding: 0 var(--card-pad);
+  margin-top: 14px;
+}
+
+/* score-num and score-denom — identical styling, color set by JS */
+.score-num,
+.score-denom {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--blue);
+}
+
+/* Row 3: category label — left aligned, largest text */
+.score-lbl {
+  display: block;
+  font-size: 30px;
+  font-weight: 800;
+  letter-spacing: -0.5px;
+  color: var(--blue); /* overridden by JS */
+  line-height: 1.1;
+  padding: 2px var(--card-pad) 8px;
+}
+
+/* Bar wrapper */
+.score-bar-wrap {
+  padding: 0 var(--card-pad);
+  margin-bottom: 4px;
+}
+
+.score-track {
+  width: 100%;
+  height: 9px;   /* 50% thicker than 6px */
+  background: rgba(200, 200, 220, 0.3);
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.score-fill {
+  height: 100%;
+  width: 0;
+  border-radius: 99px;
+  background: var(--blue); /* overridden by JS */
+  transition: width 0.65s ease-out;
+}
+
+/* Small Prism logo in results topbar */
+.results-prism-logo {
+  width: 22px;
+  height: auto;
+  flex-shrink: 0;
+}
+
+/* Share / PDF icon */
+.share-icon-btn {
+  color: var(--ink-mid);
+  flex-shrink: 0;
+}
+
+/* ── Summary ── */
+.summary-text {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--ink);
+  padding: 16px var(--card-pad) 24px;  /* extra bottom pad before VERIFIED BY */
+}
+
+.read-more-link {
+  font-size: 13px;
+  color: var(--ink-light);
+  text-decoration: none;
+  transition: color 0.15s;
+  white-space: nowrap;
+}
+.read-more-link:hover {
+  color: var(--blue);
+  text-decoration: underline;
+}
+
+/* ════════════════════════════════════════════════════════
+   COLLAPSIBLE SECTIONS — no divider lines
+   ════════════════════════════════════════════════════════ */
+.collapse-hdr {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px var(--card-pad);
+  background: none;
+  border: none;         /* NO lines anywhere in the analysis card */
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.12s;
+}
+.collapse-hdr:hover { background: var(--surface-hover); }
+
+.collapse-title {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 16px;      /* larger section headers per feedback */
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
+  color: var(--ink);
+}
+
+.chevron {
+  flex-shrink: 0;
+  color: var(--ink-light);
+  transition: transform 0.2s ease;
+}
+.collapse-hdr[aria-expanded="false"] .chevron {
+  transform: rotate(180deg);
+}
+
+.collapse-body {
+  padding: 4px var(--card-pad) 18px;
+}
+.collapse-body.is-collapsed { display: none; }
+
+/* ════════════════════════════════════════════════════════
+   SOURCES — pill left, title right (space-between row)
+   ════════════════════════════════════════════════════════ */
+.sources-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;   /* more breathing room between sources */
+}
+
+/* Source item: two-row layout matching design screenshot exactly
+   Row 1: [Supportive pill]   link-of-source.com
+   Row 2: Here is the title of that source used to verify.       */
+.source-item {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  width: 100%;
+}
+
+/* Row 1: pill left, domain right */
+.source-meta-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+/* Badge pills — bold text, generous side padding */
+.source-badge {
+  font-size: 13px;
+  font-weight: 700;   /* BOLD */
+  padding: 4px 16px;  /* more padding especially on sides */
+  border-radius: 999px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.source-badge.supportive { background: var(--badge-blue-bg);  color: var(--badge-blue-txt); }
+.source-badge.opposing   { background: var(--badge-red-bg);   color: var(--badge-red-txt);  }
+.source-badge.neutral    { background: var(--badge-gray-bg);  color: var(--badge-gray-txt); }
+/* Reasoning: #335981 at 20% bg, #335981 text */
+.source-badge.reasoning  {
+  background: rgba(51, 89, 129, 0.20);
+  color: #335981;
+}
+
+.source-domain {
+  font-size: 13px;
+  color: var(--ink-light);
+  text-align: right;
+}
+
+/* Domain IS the hyperlink — changes on hover */
+.source-domain-link {
+  font-size: 13px;
+  color: var(--ink-light);
+  text-decoration: none;
+  text-align: right;
+  transition: color 0.15s;
+}
+.source-domain-link:hover {
+  color: var(--blue);
+  text-decoration: underline;
+}
+
+/* Row 2: plain title text — same size as badge, regular weight, no link styling */
+.source-title {
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--ink);
+  line-height: 1.5;
+  display: block;
+  width: 100%;
+}
+
+/* ════════════════════════════════════════════════════════
+   COUNTERARGUMENT — single summary paragraph + source list
+   ════════════════════════════════════════════════════════ */
+.counter-content {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.counter-summary {
+  font-size: 14px;
+  line-height: 1.7;
+  color: var(--ink);
+}
+
+/* Re-uses .sources-list / .source-item styles above */
+.counter-sources-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+/* ════════════════════════════════════════════════════════
+   MINI LOADING
+   ════════════════════════════════════════════════════════ */
+.mini-loading {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 6px 0 10px;
+  font-size: 14px;
+  color: var(--ink-mid);
+}
+
+/* ════════════════════════════════════════════════════════
+   BUTTONS
+   ════════════════════════════════════════════════════════ */
+.btn-primary {
+  background: #3471CE;
+  color: #fff;
+  border: none;
+  border-radius: 999px;   /* fully pill-shaped */
+  padding: 14px 20px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+
+.btn-logo {
+  width: 20px;
+  height: auto;
+  flex-shrink: 0;
+}
+.btn-primary:hover  { background: #6C63FF; }
+.btn-primary:active { transform: scale(0.98); }
+
+.btn-outline {
+  background: transparent;
+  color: #3471CE;
+  border: 1.5px solid #3471CE;
+  border-radius: 999px;   /* fully pill-shaped */
+  padding: 13px 20px;
+  font-family: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+}
+.btn-outline:hover    { background: rgba(88, 153, 244, 0.06); }
+.btn-outline:active   { transform: scale(0.98); }
+.btn-outline:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+
+.btn-full { width: 100%; }
+
+/* Generic icon button */
+.icon-btn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--ink-mid);
+  padding: 6px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.12s;
+}
+.icon-btn:hover { background: rgba(200, 200, 220, 0.2); }
+
+/* ════════════════════════════════════════════════════════
+   CHALLENGE BUTTON WRAPPER
+   ════════════════════════════════════════════════════════ */
+.challenge-wrap {
+  padding: 14px var(--card-pad) var(--card-pad);
+}

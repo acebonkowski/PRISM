@@ -1,0 +1,327 @@
+<!DOCTYPE html>
+<!--
+  report.html — Prism Print / PDF Report
+  IMPORTANT: All JS must live in report.js — MV3 CSP (script-src 'self')
+  blocks inline <script> in extension pages.
+-->
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Prism Analysis Report</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Reset ──────────────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── Tokens ─────────────────────────────────────── */
+    :root {
+      --blue:       #3471CE;
+      --periwinkle: #7B6EF6;
+      --red-wine:   #8B1A2F;
+      --ink:        #0F0B3E;
+      --ink-mid:    #555570;
+      --ink-light:  #9090A8;
+      --border:     rgba(200, 200, 230, 0.45);
+    }
+
+    /* ── Body ───────────────────────────────────────── */
+    body {
+      font-family: 'Nunito', system-ui, -apple-system, sans-serif;
+      background: #F5F5FA;
+      color: var(--ink);
+      padding: 32px 16px 64px;
+    }
+
+    .hidden { display: none !important; }
+
+    /* ── Loading state ───────────────────────────────── */
+    .loading-page {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+      min-height: 320px;
+    }
+
+    .loading-label {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--ink);
+    }
+
+    .loading-sub {
+      font-size: 14px;
+      color: var(--ink-mid);
+      margin-top: -8px;
+    }
+
+    /* Triangle spinner — matches popup loading screen exactly */
+    .tri-spin {
+      width: 56px;
+      height: 56px;
+      animation: spin-cw 1s linear infinite;
+      transform-origin: 50% 50%;
+      filter: drop-shadow(0 4px 16px rgba(123, 110, 246, 0.5));
+    }
+
+    @keyframes spin-cw {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(360deg); }
+    }
+
+    /* ── Print bar (hidden when printing) ───────────── */
+    .print-bar {
+      max-width: 720px;
+      margin: 0 auto 24px;
+      display: flex;
+      justify-content: flex-end;
+    }
+
+    .print-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--blue);
+      color: #fff;
+      border: none;
+      border-radius: 999px;
+      padding: 10px 20px;
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s;
+    }
+    .print-btn:hover { opacity: 0.88; }
+
+    /* ── Report card ────────────────────────────────── */
+    .report {
+      max-width: 720px;
+      margin: 0 auto;
+      background: #fff;
+      border-radius: 16px;
+      box-shadow: 0 4px 32px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+
+    /* ── Header ─────────────────────────────────────── */
+    .report-header {
+      background: linear-gradient(135deg, #BDB4FF 0%, #8B82F0 50%, #6156D4 100%);
+      padding: 28px 32px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+    }
+
+    .report-brand {
+      font-size: 22px;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.3px;
+    }
+
+    .report-meta {
+      font-size: 12px;
+      color: rgba(255,255,255,0.75);
+      text-align: right;
+      line-height: 1.6;
+    }
+
+    /* ── Sections ───────────────────────────────────── */
+    .section {
+      padding: 24px 32px;
+      border-bottom: 1px solid var(--border);
+    }
+    .section:last-child { border-bottom: none; }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.8px;
+      text-transform: uppercase;
+      color: var(--ink-light);
+      margin-bottom: 16px;
+    }
+
+    /* ── Article info ────────────────────────────────── */
+    .article-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--ink);
+      line-height: 1.4;
+      margin-bottom: 6px;
+    }
+
+    .article-url {
+      font-size: 13px;
+      color: var(--blue);
+      text-decoration: none;
+      word-break: break-all;
+    }
+    .article-url:hover { text-decoration: underline; }
+
+    /* ── Score ───────────────────────────────────────── */
+    .score-row {
+      display: flex;
+      align-items: flex-end;
+      gap: 14px;
+      margin-bottom: 12px;
+    }
+
+    .score-number {
+      font-size: 52px;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -2px;
+    }
+
+    .score-right { display: flex; flex-direction: column; gap: 2px; }
+
+    .score-denom {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--ink-light);
+      margin-bottom: 4px;
+    }
+
+    .score-label {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+    }
+
+    .score-track {
+      width: 100%;
+      height: 8px;
+      background: rgba(200,200,220,0.3);
+      border-radius: 99px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+
+    .score-fill {
+      height: 100%;
+      border-radius: 99px;
+    }
+
+    .score-desc {
+      font-size: 14px;
+      color: var(--ink-mid);
+      line-height: 1.6;
+    }
+
+    /* ── Summary ─────────────────────────────────────── */
+    .summary-body {
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--ink);
+    }
+
+    /* ── Sources ─────────────────────────────────────── */
+    .sources-list {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    .source-item {
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+    }
+
+    .source-meta-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .source-badge {
+      font-size: 12px;
+      font-weight: 700;
+      padding: 3px 14px;
+      border-radius: 999px;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .source-badge.supportive { background: rgba(52,113,206,0.12);  color: #3471CE; }
+    .source-badge.opposing   { background: rgba(139,26,47,0.10);   color: #8B1A2F; }
+    .source-badge.neutral    { background: rgba(100,100,130,0.10); color: #555570; }
+    .source-badge.reasoning  { background: rgba(51,89,129,0.20);   color: #335981; }
+
+    .source-domain {
+      font-size: 12px;
+      color: var(--ink-light);
+      text-align: right;
+    }
+
+    .source-title {
+      font-size: 13px;
+      color: var(--ink);
+      line-height: 1.5;
+    }
+
+    /* ── Counter-argument ────────────────────────────── */
+    .counter-summary {
+      font-size: 15px;
+      line-height: 1.7;
+      color: var(--ink);
+    }
+
+    /* ── Footer ──────────────────────────────────────── */
+    .report-footer {
+      padding: 20px 32px;
+      background: #F8F8FC;
+      font-size: 12px;
+      color: var(--ink-light);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    /* ── Print media ─────────────────────────────────── */
+    @media print {
+      body { background: #fff; padding: 0; }
+      .print-bar { display: none !important; }
+      .report { border-radius: 0; box-shadow: none; max-width: 100%; }
+      a { color: inherit; }
+      @page { margin: 16mm 14mm; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Loading state — visible until report.js populates the report -->
+  <div id="loading-state" class="loading-page">
+    <img src="icons/prism-color.svg" class="tri-spin" alt="" aria-hidden="true" />
+    <p class="loading-label">Preparing report…</p>
+    <p class="loading-sub">This will only take a moment.</p>
+  </div>
+
+  <!-- Print bar + report card — hidden until data loads -->
+  <div id="print-bar-wrap" class="hidden">
+    <div class="print-bar">
+      <button class="print-btn" id="print-btn">
+        <svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"
+             fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
+          <polyline points="16 6 12 2 8 6"/>
+          <line x1="12" y1="2" x2="12" y2="15"/>
+        </svg>
+        Save as PDF
+      </button>
+    </div>
+  </div>
+
+  <div id="report" class="report hidden"></div>
+
+  <!-- External script — required by MV3 CSP (script-src 'self') -->
+  <script src="report.js"></script>
+</body>
+</html>

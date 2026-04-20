@@ -1,0 +1,22 @@
+{
+  "name": "truthlayer-webapp",
+  "version": "1.0.0",
+  "description": "TruthLayer companion web app — renders shareable analysis reports",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "react-router-dom": "^6.23.0",
+    "@supabase/supabase-js": "^2.43.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.0",
+    "vite": "^5.2.0"
+  }
+}
