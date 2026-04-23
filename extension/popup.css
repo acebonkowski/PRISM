@@ -50,8 +50,9 @@ body {
   font-family: 'Nunito', system-ui, -apple-system, sans-serif;
   background: #fff;
   color: var(--ink);
-  width: 360px;
-  overflow: hidden;
+  width: 100%;
+  min-width: 280px;
+  overflow-x: hidden;
 }
 
 /* ════════════════════════════════════════════════════════
@@ -62,13 +63,10 @@ body {
    is not visible enough to be worth the complexity.)
    ════════════════════════════════════════════════════════ */
 .popup-wrap {
-  width: 360px;
-  min-height: 480px;
+  width: 100%;
+  min-height: 100vh;
   background: var(--surface);
-  border-radius: 0;   /* no rounded corners on parent card */
-  box-shadow:
-    0 12px 40px rgba(0, 0, 0, 0.18),
-    0 3px 10px  rgba(0, 0, 0, 0.10);
+  border-radius: 0;
   overflow-y: auto;
   overflow-x: hidden;
 }
@@ -89,7 +87,7 @@ body {
   display: flex;
   flex-direction: column;
   width: 100%;
-  min-height: 480px;
+  min-height: 100vh;
 }
 
 /* ════════════════════════════════════════════════════════
