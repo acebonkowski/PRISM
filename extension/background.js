@@ -345,6 +345,9 @@ function extractJSON(text) {
   return text.trim();
 }
 
+// ─── SIDE PANEL INIT ──────────────────────────────────────────────────────────
+chrome.sidePanel.setPanelBehavior({ openPanelOnActionClick: true });
+
 // ─── KEEPALIVE PORT ────────────────────────────────────────────────────────────
 chrome.runtime.onConnect.addListener((port) => {
   if (port.name === 'keepalive') {
