@@ -27,27 +27,29 @@ function useInView(options = {}) {
   return [ref, inView];
 }
 
-// ─── Prism Icon ───────────────────────────────────────────────────────────────
+// ─── Prism Logo (actual brand mark) ───────────────────────────────────────────
 function PrismIcon({ size = 28 }) {
   const uid = useId().replace(/:/g, '');
+  const h = Math.round(size * 140 / 127);
   return (
-    <svg width={size} height={size} viewBox="0 0 28 28" fill="none" aria-hidden="true">
+    <svg width={size} height={h} viewBox="0 0 127 140" fill="none" aria-hidden="true">
       <defs>
-        <linearGradient id={`pg${uid}`} x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse">
-          <stop offset="0%"   stopColor="#BDB4FF" />
-          <stop offset="50%"  stopColor="#8B82F0" />
-          <stop offset="100%" stopColor="#6156D4" />
+        <linearGradient id={`pg${uid}`} x1="63.2842" y1="0" x2="63.2842" y2="139.38" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#5899F4" />
+          <stop offset="1" stopColor="#A9A7FF" />
         </linearGradient>
       </defs>
-      <polygon points="14,3 2,25 26,25" fill={`url(#pg${uid})`} />
-      <polygon points="14,3 2,25 14,25" fill="rgba(255,255,255,0.18)" />
+      <path
+        d="M126.568 34.8447V104.535L63.2842 139.38L0 104.535V34.8447L63.2842 0L126.568 34.8447ZM14.5586 101.135L58.3076 125.224V77.9727L14.5586 101.135ZM68.3076 125.197L112.026 101.125L68.3076 78.4385V125.197ZM10 92.2324L52.0195 69.9854L10 48.1807V92.2324ZM73.5596 69.8975L116.568 92.2158V47.1279L73.5596 69.8975ZM13.5889 38.7773L58.3076 61.9824V14.1543L13.5889 38.7773ZM68.3076 61.3633L111.993 38.2344L68.3076 14.1807V61.3633Z"
+        fill={`url(#pg${uid})`}
+      />
     </svg>
   );
 }
 
 // ─── Header ───────────────────────────────────────────────────────────────────
 function Header() {
-  const scrolled  = useScrolled(40);
+  const scrolled = useScrolled(40);
   const [open, setOpen] = useState(false);
 
   return (
@@ -55,14 +57,15 @@ function Header() {
       <div className="l-header__inner l-container">
 
         <a href="/" className="l-logo">
-          <PrismIcon size={28} />
+          <PrismIcon size={26} />
           <span className="l-logo__text">Prism</span>
         </a>
 
         <nav className={`l-nav${open ? ' l-nav--open' : ''}`}>
+          <a href="#"           className="l-nav__link" onClick={() => setOpen(false)}>Home</a>
           <a href="#how-it-works" className="l-nav__link" onClick={() => setOpen(false)}>How It Works</a>
-          <a href="#features"     className="l-nav__link" onClick={() => setOpen(false)}>Features</a>
-          <a href="#pricing"      className="l-nav__link" onClick={() => setOpen(false)}>Pricing</a>
+          <a href="#features"   className="l-nav__link" onClick={() => setOpen(false)}>Features</a>
+          <a href="#pricing"    className="l-nav__link" onClick={() => setOpen(false)}>Pricing</a>
         </nav>
 
         <a
@@ -82,80 +85,129 @@ function Header() {
   );
 }
 
-// ─── Extension Mockup ─────────────────────────────────────────────────────────
+// ─── Animated Extension Mockup ────────────────────────────────────────────────
+const MOCKUP_SOURCES = [
+  { stance: 'Opposing',   cls: 'opposing',   domain: 'politico.com', title: "Voters aren't buying the summit success story" },
+  { stance: 'Neutral',    cls: 'neutral',    domain: 'apnews.com',   title: 'What the deal means for global energy policy' },
+  { stance: 'Supportive', cls: 'supportive', domain: 'reuters.com',  title: 'UN confirms 1.5°C target remains achievable' },
+];
+
 function ExtensionMockup() {
+  const [phase, setPhase] = useState('idle');
+
+  useEffect(() => {
+    const ref = { timers: [] };
+    const cycle = () => {
+      ref.timers.forEach(clearTimeout);
+      setPhase('idle');
+      ref.timers = [
+        setTimeout(() => setPhase('hovering'), 1000),
+        setTimeout(() => setPhase('clicking'),  1900),
+        setTimeout(() => setPhase('loading'),   2400),
+        setTimeout(() => setPhase('results'),   3700),
+        setTimeout(cycle,                       8800),
+      ];
+    };
+    cycle();
+    return () => ref.timers.forEach(clearTimeout);
+  }, []);
+
+  const isIdle    = phase === 'idle' || phase === 'hovering' || phase === 'clicking';
+  const isLoading = phase === 'loading';
+  const isResults = phase === 'results';
+
   return (
     <div className="l-mockup">
       <div className="l-mockup__browser">
-
         <div className="l-mockup__browser-bar">
           <div className="l-mockup__dots"><span /><span /><span /></div>
           <div className="l-mockup__url">nytimes.com/climate-summit-2025</div>
         </div>
 
         <div className="l-mockup__page">
-          {/* Simulated article */}
+          {/* Article skeleton — always visible */}
           <div className="l-mockup__article">
             <div className="l-mockup__article-title" />
-            <div className="l-mockup__article-line" style={{ width: '92%' }} />
-            <div className="l-mockup__article-line" style={{ width: '85%' }} />
-            <div className="l-mockup__article-line" style={{ width: '78%' }} />
-            <div className="l-mockup__article-line" style={{ width: '90%' }} />
-            <div className="l-mockup__article-line" style={{ width: '65%' }} />
+            {[92, 85, 78, 90, 65, 80, 72, 88, 60].map((w, i) => (
+              <div key={i} className="l-mockup__article-line" style={{ width: `${w}%` }} />
+            ))}
           </div>
 
-          {/* Side panel */}
+          {/* Animated side panel */}
           <div className="l-mockup__panel">
             <div className="l-panel-topbar">
-              <PrismIcon size={16} />
-              {/* share icon */}
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#9090A8" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+              <PrismIcon size={13} />
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#8B9DC3" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/>
                 <polyline points="16 6 12 2 8 6"/>
                 <line x1="12" y1="2" x2="12" y2="15"/>
               </svg>
             </div>
 
-            <div className="l-panel-score">
-              <span className="l-panel-score__num">74</span>
-              <span className="l-panel-score__denom">/100</span>
-            </div>
-            <span className="l-panel-score__label">Verified</span>
-
-            <div className="l-panel-bar">
-              <div className="l-panel-bar__fill" style={{ width: '74%' }} />
-            </div>
-
-            <p className="l-panel-summary">
-              Claims are backed by peer-reviewed data and official UN reports with minor methodological disputes.
-            </p>
-
-            <div className="l-panel-section">
-              <div className="l-panel-section__hdr">
-                {/* check icon */}
-                <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="#0F0B3E" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                  <polyline points="20 6 9 17 4 12"/>
-                </svg>
-                VERIFIED BY
+            {/* Phase: idle — show Analyze button + animated cursor */}
+            {isIdle && (
+              <div className="l-panel-idle">
+                <p className="l-panel-idle__hint">Ready to analyze</p>
+                <div className="l-analyze-wrap">
+                  <button className={`l-panel-analyze${phase === 'clicking' ? ' l-panel-analyze--pressed' : ''}`}>
+                    Analyze
+                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                      <line x1="5" y1="12" x2="19" y2="12"/>
+                      <polyline points="12 5 19 12 12 19"/>
+                    </svg>
+                  </button>
+                  <div className={`l-cursor l-cursor--${phase}`}>
+                    <svg width="16" height="18" viewBox="0 0 16 18" fill="none">
+                      <path d="M1 1L1 14L5.2 10.2L7.8 16.5L10.2 15.5L7.5 9.2L13.8 9.2L1 1Z" fill="#0F1B35" stroke="white" strokeWidth="1.2" strokeLinejoin="round"/>
+                    </svg>
+                  </div>
+                </div>
               </div>
-              <div className="l-panel-source">
-                <span className="l-panel-badge l-panel-badge--supportive">Supportive</span>
-                <span className="l-panel-domain">reuters.com</span>
-              </div>
-              <div className="l-panel-source">
-                <span className="l-panel-badge l-panel-badge--opposing">Opposing</span>
-                <span className="l-panel-domain">ft.com</span>
-              </div>
-              <div className="l-panel-source">
-                <span className="l-panel-badge l-panel-badge--neutral">Neutral</span>
-                <span className="l-panel-domain">apnews.com</span>
-              </div>
-            </div>
+            )}
 
-            <button className="l-panel-challenge">Challenge Argument</button>
+            {/* Phase: loading */}
+            {isLoading && (
+              <div className="l-panel-loading">
+                <div className="l-panel-loading__track">
+                  <div className="l-panel-loading__fill" />
+                </div>
+                <p className="l-panel-loading__text">Analyzing…</p>
+              </div>
+            )}
+
+            {/* Phase: results */}
+            {isResults && (
+              <div className="l-panel-results">
+                <p className="l-res-score" style={{ '--d': '0ms' }}>74/100</p>
+                <p className="l-res-verdict" style={{ '--d': '80ms' }}>Verified</p>
+                <div className="l-panel-bar l-res-bar" style={{ '--d': '160ms' }}>
+                  <div className="l-panel-bar__fill" style={{ width: '74%' }} />
+                </div>
+                <p className="l-res-summary" style={{ '--d': '240ms' }}>
+                  Claims backed by peer-reviewed data. Minor disputes among signatories on enforcement mechanisms.
+                </p>
+                <div className="l-res-sources-hdr" style={{ '--d': '340ms' }}>
+                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="20 6 9 17 4 12"/>
+                  </svg>
+                  VERIFIED BY
+                </div>
+                {MOCKUP_SOURCES.map((s, i) => (
+                  <div key={s.domain} className="l-res-source" style={{ '--d': `${420 + i * 90}ms` }}>
+                    <div className="l-res-source__row">
+                      <span className={`l-panel-badge l-panel-badge--${s.cls}`}>{s.stance}</span>
+                      <span className="l-res-source__domain">{s.domain}</span>
+                    </div>
+                    <p className="l-res-source__title">{s.title}</p>
+                  </div>
+                ))}
+                <button className="l-res-challenge" style={{ '--d': '700ms' }}>
+                  Challenge Argument
+                </button>
+              </div>
+            )}
           </div>
         </div>
-
       </div>
     </div>
   );
@@ -172,7 +224,7 @@ function Hero() {
             You read the news.<br />But are you reading<br />the whole story?
           </h1>
           <p className="l-hero__sub">
-            Prism is a one-click Chrome extension that instantly analyzes any article or post — surfacing a verifiability score, credible counter-evidence, and the strongest opposing argument. Without ever leaving the page.
+            Prism is a one-click Chrome extension that instantly analyzes any article or post, surfacing a verifiability score, credible counter-evidence, and the strongest opposing argument. Without ever leaving the page.
           </p>
           <div className="l-hero__ctas">
             <a href="https://chrome.google.com/webstore" className="l-btn l-btn--primary l-btn--lg" target="_blank" rel="noopener noreferrer">
@@ -197,11 +249,17 @@ function Hero() {
 function ProblemBar() {
   return (
     <div className="l-problem-bar">
-      <div className="l-container">
-        <p className="l-problem-bar__text">
-          Fake news spreads 6× faster than the truth. Most fact-checkers require you to already be skeptical — and to leave the page. Prism fixes both.
-        </p>
-        <span className="l-problem-bar__cite">Vosoughi et al., 2018, Science</span>
+      <div className="l-container l-pb-inner">
+        <div className="l-pb-stat">
+          <span className="l-pb-stat__num">6×</span>
+          <span className="l-pb-stat__label">faster spread</span>
+        </div>
+        <div className="l-pb-content">
+          <p className="l-pb-body">
+            Most fact-checkers require you to already be skeptical — and to leave the page.{' '}
+            <strong className="l-pb-highlight">Prism fixes both.</strong>
+          </p>
+        </div>
       </div>
     </div>
   );
@@ -276,10 +334,10 @@ function ScoreRing({ score = 74 }) {
   return (
     <div className="l-score-ring-wrap" ref={ref}>
       <svg width="100" height="100" viewBox="0 0 100 100">
-        <circle cx="50" cy="50" r={r} fill="none" stroke="rgba(52,113,206,0.12)" strokeWidth="8" />
+        <circle cx="50" cy="50" r={r} fill="none" stroke="rgba(37,99,235,0.14)" strokeWidth="8" />
         <circle
           cx="50" cy="50" r={r}
-          fill="none" stroke="#3471CE" strokeWidth="8"
+          fill="none" stroke="#2563EB" strokeWidth="8"
           strokeLinecap="round"
           strokeDasharray={circ}
           strokeDashoffset={offset}
@@ -298,23 +356,23 @@ function ScoreRing({ score = 74 }) {
   );
 }
 
-// ─── Features ─────────────────────────────────────────────────────────────────
+// ─── Features — 4 consolidated cards ─────────────────────────────────────────
 const FEATURES = [
   {
     label: 'Verifiability Score',
     title: 'Verifiability Score',
-    desc: 'Every article gets a 0–100 score, a plain-language explanation of why, and a color-coded category (Verified / Contested / Disputed). No jargon. Just signal.',
+    desc: 'Every article gets a 0–100 score with a plain-language explanation and color-coded verdict. Results load in under 8 seconds — no tab switching, no manual searching. Just signal.',
     visual: <ScoreRing score={74} />,
   },
   {
     label: 'Challenge Argument',
     title: 'Challenge Argument',
-    desc: 'An on-demand second AI pass that steel-mans the strongest opposing perspective — written as a reasonable, intelligent person who disagrees would argue. Backed by 3–5 real sourced links.',
+    desc: 'An on-demand AI pass that steel-mans the strongest opposing perspective — written as a reasonable, intelligent person who disagrees would argue. Backed by 3–5 real sourced links.',
     visual: (
       <div className="l-feat-visual l-feat-visual--counter">
         <div className="l-feat-counter-header">
           <svg width="14" height="14" viewBox="0 0 12 12" fill="none">
-            <path d="M1 8.5L6 11L11 8.5M1 6L6 8.5L11 6M6 1L1 3.5L6 6L11 3.5L6 1Z" stroke="#7B6EF6" strokeLinecap="round" strokeLinejoin="round"/>
+            <path d="M1 8.5L6 11L11 8.5M1 6L6 8.5L11 6M6 1L1 3.5L6 6L11 3.5L6 1Z" stroke="#818CF8" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
           Counterargument
         </div>
@@ -323,15 +381,15 @@ const FEATURES = [
         </p>
         <div className="l-feat-counter-source">
           <span className="l-panel-badge l-panel-badge--reasoning">Reasoning</span>
-          <span style={{ fontSize: 11, color: '#9090A8' }}>theguardian.com</span>
+          <span style={{ fontSize: 11, color: '#8B9DC3' }}>theguardian.com</span>
         </div>
       </div>
     ),
   },
   {
-    label: 'Source Verification',
-    title: 'Source Verification',
-    desc: 'Prism runs live web searches to surface real supporting or contradicting sources, labeled and linked directly in the extension. See what backs the story — and what challenges it.',
+    label: 'Source & Summary',
+    title: 'Source & Summary',
+    desc: 'Live web searches surface real supporting, opposing, and neutral sources — each labeled and linked. Plus a concise, editorially neutral 40-word summary that cuts through framing before you even start reading.',
     visual: (
       <div className="l-feat-visual">
         {[
@@ -342,50 +400,22 @@ const FEATURES = [
           <div className="l-feat-source" key={s.domain}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 }}>
               <span className={`l-panel-badge l-panel-badge--${s.badgeCls}`}>{s.stance}</span>
-              <span style={{ fontSize: 11, color: '#9090A8' }}>{s.domain}</span>
+              <span style={{ fontSize: 11, color: '#8B9DC3' }}>{s.domain}</span>
             </div>
-            <p style={{ fontSize: 11, color: '#0F0B3E', lineHeight: 1.5 }}>{s.title}</p>
+            <p style={{ fontSize: 11, color: '#0F1B35', lineHeight: 1.5 }}>{s.title}</p>
           </div>
         ))}
       </div>
     ),
   },
   {
-    label: 'Neutral Summary',
-    title: 'Neutral Summary',
-    desc: 'A concise, editorially neutral summary of the page content in under 40 words. Cuts through framing and spin before you even read the article.',
-    visual: (
-      <div className="l-feat-visual">
-        <p className="l-feat-summary">
-          World leaders reached a binding agreement at COP30 to halve emissions by 2035, with enforcement mechanisms contested by major industrial nations.
-        </p>
-      </div>
-    ),
-  },
-  {
     label: 'Share & Export',
     title: 'Share & Export',
-    desc: 'One click exports the full analysis — score, summary, sources, counter-argument — as a shareable link or print-ready PDF. Every report gets a unique public URL.',
+    desc: 'One click exports the full analysis — score, summary, sources, counter-argument — as a shareable link or print-ready PDF. Every report gets a unique public URL so you can send context, not just opinions.',
     visual: (
       <div className="l-feat-visual" style={{ alignItems: 'center' }}>
         <div className="l-feat-url">prism.app/report/a3f9b2</div>
-        <p style={{ fontSize: 12, color: '#9090A8', marginTop: 10 }}>Unique public URL · Print-ready PDF</p>
-      </div>
-    ),
-  },
-  {
-    label: 'Instant Analysis',
-    title: 'Instant Analysis',
-    desc: 'Two-stage architecture splits the main analysis from the challenge pass so initial results load in under 8 seconds. No page reload. No context switching.',
-    visual: (
-      <div className="l-feat-visual l-feat-visual--timing">
-        <div className="l-feat-timing">
-          <span className="l-feat-timing-num">8s</span>
-          <span className="l-feat-timing-lbl">Initial analysis</span>
-        </div>
-        <div className="l-feat-timing-bar">
-          <div className="l-feat-timing-fill" />
-        </div>
+        <p style={{ fontSize: 12, color: '#8B9DC3', marginTop: 10 }}>Unique public URL · Print-ready PDF</p>
       </div>
     ),
   },
@@ -446,7 +476,6 @@ const PLANS = [
   },
 ];
 
-// Feather check icon for plan features
 const CheckIcon = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
     <polyline points="20 6 9 17 4 12"/>
@@ -521,7 +550,7 @@ function Footer() {
 
           <div className="l-footer__col l-footer__brand">
             <a href="/" className="l-logo">
-              <PrismIcon size={24} />
+              <PrismIcon size={22} />
               <span className="l-logo__text">Prism</span>
             </a>
             <p className="l-footer__tagline">"Read the whole story."</p>
@@ -557,13 +586,11 @@ function Footer() {
               <li><a href="#">Terms of Service</a></li>
             </ul>
             <div className="l-footer__social">
-              {/* X / Twitter */}
               <a href="#" aria-label="X / Twitter">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622 5.91-5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
                 </svg>
               </a>
-              {/* LinkedIn */}
               <a href="#" aria-label="LinkedIn">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
                   <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6z"/>
@@ -595,9 +622,9 @@ export default function LandingPage() {
     const prevHtmlBg = html.style.background;
     const prevBodyBg = body.style.background;
     const prevColor  = body.style.color;
-    html.style.background = '#F8F8FC';
-    body.style.background = '#F8F8FC';
-    body.style.color      = '#0F0B3E';
+    html.style.background = '#EEF4FF';
+    body.style.background = '#EEF4FF';
+    body.style.color      = '#0F1B35';
     return () => {
       html.style.background = prevHtmlBg;
       body.style.background = prevBodyBg;
