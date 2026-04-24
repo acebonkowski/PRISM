@@ -11,6 +11,7 @@
 import React from 'react';
 import { Routes, Route } from 'react-router-dom';
 import ReportPage from './ReportPage';
+import LandingPage from './LandingPage';
 
 export default function App() {
   return (
@@ -18,26 +19,8 @@ export default function App() {
       {/* Main report route — :id is the Supabase UUID from the extension's share action */}
       <Route path="/report/:id" element={<ReportPage />} />
 
-      {/* Root — shown if someone lands on the domain without a report ID */}
-      <Route
-        path="/"
-        element={
-          <div className="not-found">
-            <h1>Prism</h1>
-            <p>
-              Install the{' '}
-              <a
-                href="https://chrome.google.com/webstore"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                Chrome Extension
-              </a>{' '}
-              to start analyzing articles and posts.
-            </p>
-          </div>
-        }
-      />
+      {/* Root — landing page */}
+      <Route path="/" element={<LandingPage />} />
 
       {/* Catch-all 404 */}
       <Route
