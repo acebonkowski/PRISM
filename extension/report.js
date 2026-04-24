@@ -62,15 +62,18 @@ function renderReport(data) {
 
   // New schema: unified sources array with Claude-assigned labels.
   // Legacy fallback: verification_sources / counter_sources (old reports in storage).
+  // Always cap at 5 — matches exactly what the sidebar showed.
   let sourcesHtml = '';
   if (r.sources && r.sources.length) {
-    sourcesHtml = r.sources
+    sourcesHtml = r.sources.slice(0, 5)
       .map(s => renderSourceItem(s, s.label || s.stance || 'Neutral'))
       .join('');
   } else {
-    const supportive = (r.verification_sources || []).map(s => renderSourceItem(s, 'Supportive')).join('');
-    const opposing   = (r.counter_sources      || []).map(s => renderSourceItem(s, 'Opposing')).join('');
-    sourcesHtml = supportive + opposing;
+    const combined = [
+      ...(r.verification_sources || []).map(s => ({ ...s, stance: 'Supportive' })),
+      ...(r.counter_sources      || []).map(s => ({ ...s, stance: 'Opposing'   })),
+    ].slice(0, 5);
+    sourcesHtml = combined.map(s => renderSourceItem(s, s.stance)).join('');
   }
   const allSources = sourcesHtml;
 

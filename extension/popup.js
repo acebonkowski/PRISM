@@ -296,27 +296,41 @@ function renderSummary(summary) {
   renderExpandable(summaryText, summary);
 }
 
+// Opposing sources rank first so high-profile contradicting evidence is never
+// crowded out by a larger number of supportive results from Claude.
+const STANCE_RANK = { opposing: 0, neutral: 1, supportive: 2 };
+
 /**
- * Renders sources using labels assigned by Claude during analysis.
- * Claude is responsible for sentiment analysis and label assignment —
- * this function trusts those labels directly.
- *
- * Fallback: if Claude assigned all "Supportive" on a sub-100 score,
- * demote the last source to "Neutral" to prevent a misleading all-green list.
+ * Selects the ≤5 sources shown to the user.
+ * Sorts Opposing → Neutral → Supportive before capping so a prominent
+ * contradicting source is always included when Claude found one.
  */
-function renderSources(sources, score) {
+function selectSources(rawSources, score) {
   const s = Math.max(0, Math.min(100, Math.round(score || 0)));
 
-  // Normalise: accept both .label (new schema) and .stance (legacy)
-  let all = (sources || []).slice(0, 5).map(src => ({
+  let all = (rawSources || []).map(src => ({
     ...src,
     stance: src.label || src.stance || 'Neutral',
   }));
 
-  // Fallback guarantee: at least one non-Supportive when score < 100
-  if (s < 100 && all.length > 0 && all.every(src => src.stance === 'Supportive')) {
+  all.sort((a, b) => {
+    const ar = STANCE_RANK[(a.stance || '').toLowerCase()] ?? 1;
+    const br = STANCE_RANK[(b.stance || '').toLowerCase()] ?? 1;
+    return ar - br;
+  });
+
+  all = all.slice(0, 5);
+
+  // Fallback: guarantee at least one non-Supportive when score < 100
+  if (s < 100 && all.length > 0 && all.every(src => src.stance.toLowerCase() === 'supportive')) {
     all[all.length - 1] = { ...all[all.length - 1], stance: 'Neutral' };
   }
+
+  return all;
+}
+
+function renderSources(sources, score) {
+  const all = selectSources(sources, score);
 
   if (!all.length) {
     sourcesList.innerHTML = '<li class="source-item"><span class="source-domain">No sources found</span></li>';
@@ -459,11 +473,19 @@ shareBtn.addEventListener('click', async () => {
   shareBtn.innerHTML =
     '<img src="icons/prism-color.svg" class="logo-spin-sm" alt="" style="width:20px;height:20px;" />';
 
+  // Build the same source list the sidebar showed — sorted & capped at 5
+  const rawSources = analysisResult.sources
+    || [
+        ...(analysisResult.verification_sources || []).map(s => ({ ...s, label: s.label || 'Supportive' })),
+        ...(analysisResult.counter_sources      || []).map(s => ({ ...s, label: s.label || 'Opposing'   })),
+       ];
+  const displayedSources = selectSources(rawSources, analysisResult.verifiability_score);
+
   await chrome.storage.local.set({
     prismReport: {
       pageUrl:         currentPageUrl,
       pageTitle:       currentPageTitle,
-      analysisResult,
+      analysisResult:  { ...analysisResult, sources: displayedSources },
       challengeResult,
       analyzedAt:      new Date().toISOString(),
     },

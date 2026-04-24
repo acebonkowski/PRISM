@@ -20,8 +20,8 @@
   --ink-mid:        #555570;   /* secondary / domain text */
   --ink-light:      #9090A8;   /* muted / metadata */
 
-  --surface:        #FFFFFF;
-  --surface-hover:  #F8F8FC;
+  --surface:        #F8F8FC;
+  --surface-hover:  rgba(15, 11, 62, 0.05);
   --border-subtle:  rgba(200, 200, 230, 0.35);
 
   /* Badge fills */
@@ -44,11 +44,11 @@
    ════════════════════════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-html { background: #fff; }
+html { background: #F8F8FC; }
 
 body {
   font-family: 'Nunito', system-ui, -apple-system, sans-serif;
-  background: #fff;
+  background: #F8F8FC;
   color: var(--ink);
   width: 100%;
   min-width: 280px;
@@ -492,7 +492,7 @@ body {
    ════════════════════════════════════════════════════════ */
 .btn-primary {
   background: #3471CE;
-  color: #fff;
+  color: #F8F8FC;
   border: none;
   border-radius: 999px;   /* fully pill-shaped */
   padding: 14px 20px;
@@ -512,7 +512,7 @@ body {
   height: auto;
   flex-shrink: 0;
 }
-.btn-primary:hover  { background: #6C63FF; }
+.btn-primary:hover  { background: var(--periwinkle); }
 .btn-primary:active { transform: scale(0.98); }
 
 .btn-outline {

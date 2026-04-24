@@ -31,4 +31,6 @@ if (!SUPABASE_URL || !SUPABASE_SECRET_KEY) {
   console.warn('[Prism] Supabase is not configured. Add VITE_SUPABASE_URL and VITE_SUPABASE_SECRET_KEY to .env.local');
 }
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_SECRET_KEY);
+export const supabase = (SUPABASE_URL && SUPABASE_SECRET_KEY)
+  ? createClient(SUPABASE_URL, SUPABASE_SECRET_KEY)
+  : null;

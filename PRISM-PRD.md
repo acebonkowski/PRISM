@@ -1,8 +1,7 @@
 # TruthLayer — Product Requirements Document
 
-**Version:** 1.1 (Hackathon MVP)
+**Version:** 1.1 
 **Owner:** Ace Bonkowski
-**Timeline:** 6-hour build sprint
 **Stack:** Chrome Extension (MV3) + Claude API + Supabase + React web app
 
 ---
@@ -11,7 +10,7 @@
 
 Politically engaged, news-heavy readers are consuming an unprecedented volume of content across social media and digital news — with no fast, in-context tool to pressure-test what they're reading. Existing fact-checkers require the user to already be skeptical and to manually leave the page. The result is that emotionally charged, one-sided, or misleading content reinforces existing beliefs rather than challenging them. The root outcome isn't just misinformation — it's deepening polarization.
 
-TruthLayer's mission is not just to flag false claims, but to actively surface the other side of any argument, building balanced epistemic habits at the moment of consumption.
+Prism's mission is not just to flag false claims, but to actively surface the other side of any argument, building balanced epistemic habits at the moment of consumption.
 
 ---
 
@@ -42,7 +41,7 @@ TruthLayer's mission is not just to flag false claims, but to actively surface t
 
 ## 4. Product Overview
 
-TruthLayer is a Chrome Extension (MV3) with a companion web app. The user clicks the extension icon on any article or social media post. A glassmorphism popup appears with an AI-powered analysis: extracted claims, a verifiability score with plain-language explanation, verification or counter-sources from the web, and a **Devil's Advocate** section with 3 steel-manned counter-arguments each backed by 3–5 sources. Every analysis can be shared as a public web app report via a unique URL.
+Pism is a Chrome Extension (MV3) with a companion web app. The user clicks the extension icon on any article or social media post. A glassmorphism popup appears with an AI-powered analysis: extracted claims, a verifiability score with plain-language explanation, verification or counter-sources from the web, and a **Devil's Advocate** section with 3 steel-manned counter-arguments each backed by 3–5 sources. Every analysis can be shared as a public web app report via a unique URL.
 
 ---
 
@@ -276,19 +275,7 @@ Glassmorphism-first. Frosted panels with white borders floating over blurred blu
 - **Typography:** Inter or DM Sans — clean, neutral, data-legible
 - **Inspiration:** Frosted glass cards over airy photo backgrounds (ref: Ravello Village map UI from design inspo); data cards with bold numeric displays (ref: medication/seizure card grid)
 
----
 
-## 10. Build Priority for 6-Hour Sprint
-
-| Hour | Focus |
-|---|---|
-| 0:00–0:30 | `manifest.json` + load unpacked + `content.js` DOM extraction working |
-| 0:30–1:30 | `background.js` Claude API call returning structured JSON |
-| 1:30–2:30 | `popup.html/css` — glassmorphism shell, static UI layout |
-| 2:30–3:30 | Wire popup ↔ content ↔ background message passing, render live data |
-| 3:30–4:30 | Supabase write + UUID URL generation on "Share" click |
-| 4:30–5:30 | React web app `/report/:id` rendering Supabase record |
-| 5:30–6:00 | Polish, test on 2–3 real URLs, prep demo |
 
 ---
 
