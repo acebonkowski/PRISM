@@ -12,6 +12,25 @@ function useScrolled(threshold = 40) {
   return scrolled;
 }
 
+function useHeaderDark() {
+  const [dark, setDark] = useState(true); // hero is dark, so start true
+  useEffect(() => {
+    const check = () => {
+      const y = 34; // midpoint of the 68px header
+      let isDark = false;
+      document.querySelectorAll('[data-header-dark]').forEach(el => {
+        const r = el.getBoundingClientRect();
+        if (r.top <= y && r.bottom > y) isDark = true;
+      });
+      setDark(isDark);
+    };
+    window.addEventListener('scroll', check, { passive: true });
+    check();
+    return () => window.removeEventListener('scroll', check);
+  }, []);
+  return dark;
+}
+
 function useInView(options = {}) {
   const ref = useRef(null);
   const [inView, setInView] = useState(false);
@@ -50,10 +69,11 @@ function PrismIcon({ size = 28 }) {
 // ─── Header ───────────────────────────────────────────────────────────────────
 function Header() {
   const scrolled = useScrolled(40);
+  const dark = useHeaderDark();
   const [open, setOpen] = useState(false);
 
   return (
-    <header className={`l-header${scrolled ? ' l-header--scrolled' : ''}`}>
+    <header className={`l-header${scrolled ? ' l-header--scrolled' : ''}${dark ? ' l-header--dark' : ' l-header--light'}`}>
       <div className="l-header__inner l-container">
 
         <a href="/" className="l-logo">
@@ -67,14 +87,6 @@ function Header() {
           <a href="#features"   className="l-nav__link" onClick={() => setOpen(false)}>Features</a>
           <a href="#pricing"    className="l-nav__link" onClick={() => setOpen(false)}>Pricing</a>
         </nav>
-
-        <a
-          href="https://chrome.google.com/webstore"
-          className="l-btn l-btn--primary"
-          target="_blank" rel="noopener noreferrer"
-        >
-          Add to Chrome — It's Free
-        </a>
 
         <button className="l-hamburger" aria-label="Toggle menu" onClick={() => setOpen(o => !o)}>
           <span /><span /><span />
@@ -147,14 +159,10 @@ function ExtensionMockup() {
             {/* Phase: idle — show Analyze button + animated cursor */}
             {isIdle && (
               <div className="l-panel-idle">
-                <p className="l-panel-idle__hint">Ready to analyze</p>
                 <div className="l-analyze-wrap">
                   <button className={`l-panel-analyze${phase === 'clicking' ? ' l-panel-analyze--pressed' : ''}`}>
+                    <PrismIcon size={11} />
                     Analyze
-                    <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                      <line x1="5" y1="12" x2="19" y2="12"/>
-                      <polyline points="12 5 19 12 12 19"/>
-                    </svg>
                   </button>
                   <div className={`l-cursor l-cursor--${phase}`}>
                     <svg width="16" height="18" viewBox="0 0 16 18" fill="none">
@@ -168,10 +176,10 @@ function ExtensionMockup() {
             {/* Phase: loading */}
             {isLoading && (
               <div className="l-panel-loading">
-                <div className="l-panel-loading__track">
-                  <div className="l-panel-loading__fill" />
+                <div className="l-panel-loading__icon">
+                  <PrismIcon size={38} />
                 </div>
-                <p className="l-panel-loading__text">Analyzing…</p>
+                <p className="l-panel-loading__title">Thinking...</p>
               </div>
             )}
 
@@ -186,11 +194,17 @@ function ExtensionMockup() {
                 <p className="l-res-summary" style={{ '--d': '240ms' }}>
                   Claims backed by peer-reviewed data. Minor disputes among signatories on enforcement mechanisms.
                 </p>
+                <p className="l-res-read-more" style={{ '--d': '300ms' }}>Read more</p>
                 <div className="l-res-sources-hdr" style={{ '--d': '340ms' }}>
-                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="20 6 9 17 4 12"/>
+                  <div className="l-res-sources-hdr__left">
+                    <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+                      <polyline points="20 6 9 17 4 12"/>
+                    </svg>
+                    VERIFIED BY
+                  </div>
+                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                    <polyline points="18 15 12 9 6 15"/>
                   </svg>
-                  VERIFIED BY
                 </div>
                 {MOCKUP_SOURCES.map((s, i) => (
                   <div key={s.domain} className="l-res-source" style={{ '--d': `${420 + i * 90}ms` }}>
@@ -216,7 +230,7 @@ function ExtensionMockup() {
 // ─── Hero ─────────────────────────────────────────────────────────────────────
 function Hero() {
   return (
-    <section className="l-hero">
+    <section className="l-hero" data-header-dark>
       <div className="l-container l-hero__inner">
 
         <div className="l-hero__text">
@@ -228,10 +242,10 @@ function Hero() {
           </p>
           <div className="l-hero__ctas">
             <a href="https://chrome.google.com/webstore" className="l-btn l-btn--primary l-btn--lg" target="_blank" rel="noopener noreferrer">
-              Add to Chrome — Free
+              Add to Chrome – It's Free
             </a>
-            <a href="#how-it-works" className="l-hero__text-link">
-              See how it works ↓
+            <a href="#how-it-works" className="l-btn l-btn--outline l-btn--lg">
+              How It Works
             </a>
           </div>
         </div>
@@ -248,7 +262,7 @@ function Hero() {
 // ─── Problem Bar ──────────────────────────────────────────────────────────────
 function ProblemBar() {
   return (
-    <div className="l-problem-bar">
+    <div className="l-problem-bar" data-header-dark>
       <div className="l-container l-pb-inner">
         <div className="l-pb-stat">
           <span className="l-pb-stat__num">6×</span>
@@ -484,7 +498,7 @@ const CheckIcon = () => (
 
 function Pricing() {
   return (
-    <section className="l-section l-pricing" id="pricing">
+    <section className="l-section l-pricing" id="pricing" data-header-dark>
       <div className="l-container">
         <h2 className="l-section__title">Start free. Go deeper when you need it.</h2>
         <div className="l-pricing__grid">
@@ -544,7 +558,7 @@ function FinalCTA() {
 // ─── Footer ───────────────────────────────────────────────────────────────────
 function Footer() {
   return (
-    <footer className="l-footer">
+    <footer className="l-footer" data-header-dark>
       <div className="l-container">
         <div className="l-footer__grid">
 
