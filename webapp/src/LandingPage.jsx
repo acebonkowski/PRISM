@@ -66,6 +66,20 @@ function PrismIcon({ size = 28 }) {
   );
 }
 
+// ─── Shared cursor SVG (white fill, dark outline) ─────────────────────────────
+const ClickCursor = ({ width = 18, height = 26 }) => (
+  <svg width={width} height={height} viewBox="0 0 18 26" fill="none">
+    <path
+      d="M3 2L3 21L6.5 17.5L9.5 24L11.5 23L8.5 16.5L14.5 16.5L3 2Z"
+      fill="white"
+      stroke="#1e293b"
+      strokeWidth="1.5"
+      strokeLinejoin="round"
+      strokeLinecap="round"
+    />
+  </svg>
+);
+
 // ─── Header ───────────────────────────────────────────────────────────────────
 function Header() {
   const scrolled = useScrolled(40);
@@ -165,9 +179,7 @@ function ExtensionMockup() {
                     Analyze
                   </button>
                   <div className={`l-cursor l-cursor--${phase}`}>
-                    <svg width="16" height="18" viewBox="0 0 16 18" fill="none">
-                      <path d="M1 1L1 14L5.2 10.2L7.8 16.5L10.2 15.5L7.5 9.2L13.8 9.2L1 1Z" fill="#0F1B35" stroke="white" strokeWidth="1.2" strokeLinejoin="round"/>
-                    </svg>
+                    <ClickCursor width={16} height={22} />
                   </div>
                 </div>
               </div>
@@ -280,53 +292,97 @@ function ProblemBar() {
 }
 
 // ─── How It Works ─────────────────────────────────────────────────────────────
+
+function AddToChromeAnim() {
+  return (
+    <div className="sa sa--install">
+      <div className="sa__chrome-btn">Add to Chrome</div>
+      <span className="sa__cursor sa__cursor--install"><ClickCursor /></span>
+    </div>
+  );
+}
+
+function ExtensionClickAnim() {
+  return (
+    <div className="sa sa--ext">
+      <div className="sa__ext-panel">
+        <div className="sa__ext-head">Extensions</div>
+        <div className="sa__ext-row">
+          <svg className="sa__ext-icon" viewBox="0 0 127 140" fill="none">
+            <defs>
+              <linearGradient id="sa-prism-g" x1="63.284" y1="0" x2="63.284" y2="139.38" gradientUnits="userSpaceOnUse">
+                <stop stopColor="#5899F4"/>
+                <stop offset="1" stopColor="#A9A7FF"/>
+              </linearGradient>
+            </defs>
+            <path d="M126.568 34.8447V104.535L63.2842 139.38L0 104.535V34.8447L63.2842 0L126.568 34.8447ZM14.5586 101.135L58.3076 125.224V77.9727L14.5586 101.135ZM68.3076 125.197L112.026 101.125L68.3076 78.4385V125.197ZM10 92.2324L52.0195 69.9854L10 48.1807V92.2324ZM73.5596 69.8975L116.568 92.2158V47.1279L73.5596 69.8975ZM13.5889 38.7773L58.3076 61.9824V14.1543L13.5889 38.7773ZM68.3076 61.3633L111.993 38.2344L68.3076 14.1807V61.3633Z" fill="url(#sa-prism-g)"/>
+          </svg>
+          <span className="sa__ext-name">Prism</span>
+          <span className="sa__ext-pin">
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#cbd5e1" strokeWidth="2" strokeLinecap="round">
+              <line x1="12" y1="17" x2="12" y2="22"/>
+              <path d="M5 17h14v-1.5l-2-2V7a5 5 0 0 0-10 0v6.5l-2 2V17z"/>
+            </svg>
+          </span>
+        </div>
+      </div>
+      <span className="sa__cursor sa__cursor--ext"><ClickCursor /></span>
+    </div>
+  );
+}
+
+function VerifiedScoreAnim() {
+  return (
+    <div className="sa sa--score">
+      <div className="sa__score-fraction">93/100</div>
+      <div className="sa__verified-word">Verified</div>
+      <div className="sa__bar-track">
+        <div className="sa__bar-fill"/>
+      </div>
+    </div>
+  );
+}
+
 const STEPS = [
   {
     n: '01',
     title: 'Install Prism',
     desc: 'Add the free Chrome extension in seconds. Works on any news site, blog, or social media post.',
-    icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-        <polyline points="7 10 12 15 17 10"/>
-        <line x1="12" y1="15" x2="12" y2="3"/>
-      </svg>
-    ),
+    anim: <AddToChromeAnim />,
   },
   {
     n: '02',
     title: 'Click the icon',
     desc: 'Hit the Prism icon on any article or post. Analysis loads in under 8 seconds — no new tab, no manual searching.',
-    icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <circle cx="12" cy="12" r="10"/>
-        <line x1="12" y1="8" x2="12" y2="12"/>
-        <line x1="12" y1="16" x2="12.01" y2="16"/>
-      </svg>
-    ),
+    anim: <ExtensionClickAnim />,
   },
   {
     n: '03',
     title: 'Read the full picture',
     desc: 'Get a verifiability score, extracted claims, real sources, and the strongest counter-argument. Share the report or keep reading smarter.',
-    icon: (
-      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
-        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
-      </svg>
-    ),
+    anim: <VerifiedScoreAnim />,
   },
 ];
 
 function HowItWorks() {
+  const [activeStep, setActiveStep] = useState(0);
+
+  useEffect(() => {
+    const id = setInterval(() => setActiveStep(s => (s + 1) % 3), 7000);
+    return () => clearInterval(id);
+  }, []);
+
   return (
     <section className="l-section l-how" id="how-it-works">
       <div className="l-container">
         <h2 className="l-section__title">Three clicks. Full picture.</h2>
         <div className="l-steps">
-          {STEPS.map(step => (
-            <div className="l-step" key={step.n}>
-              <div className="l-step__icon">{step.icon}</div>
+          {STEPS.map((step, i) => (
+            <div
+              className={`l-step ${i === activeStep ? 'l-step--active' : 'l-step--dimmed'}`}
+              key={step.n}
+            >
+              <div className="l-step__anim">{step.anim}</div>
               <div className="l-step__n">{step.n}</div>
               <h3 className="l-step__title">{step.title}</h3>
               <p className="l-step__desc">{step.desc}</p>
