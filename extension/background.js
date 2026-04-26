@@ -19,7 +19,7 @@
  */
 
 // ─── CONFIG ────────────────────────────────────────────────────────────────────
-const CLAUDE_API_KEY = 'REDACTED_API_KEY';
+const CLAUDE_API_KEY = ''; // TODO: load from secure backend — never hardcode here
 const BRAVE_API_KEY  = 'BSATS77nWJLhg5pHZ1hurr2Y8rDANko';
 const CLAUDE_MODEL   = 'claude-sonnet-4-6';
 
