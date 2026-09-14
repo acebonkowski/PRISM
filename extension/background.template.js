@@ -13,15 +13,18 @@
  *    • Uses existing claims + summary from ANALYZE as context
  *    • MAX_TURNS = 2
  *
- * SECURITY NOTE:
- *   API key is in the extension bundle. Before public launch, route
- *   all Claude calls through a Supabase Edge Function or backend proxy.
+ * SECURITY:
+ *   Claude and Brave calls are routed through Supabase Edge Functions
+ *   (claude-proxy, brave-search) so neither API key ships in the
+ *   extension bundle. Only the Supabase project URL and publishable key
+ *   are embedded here — both are meant to be public (the publishable
+ *   key has no access beyond what the Edge Functions and RLS allow).
  */
 
 // ─── CONFIG ────────────────────────────────────────────────────────────────────
-const CLAUDE_API_KEY = '__CLAUDE_API_KEY__';
-const BRAVE_API_KEY  = '__BRAVE_API_KEY__';
-const CLAUDE_MODEL   = 'claude-sonnet-4-6';
+const SUPABASE_FUNCTIONS_URL   = '__SUPABASE_URL__/functions/v1';
+const SUPABASE_PUBLISHABLE_KEY = '__SUPABASE_PUBLISHABLE_KEY__';
+const CLAUDE_MODEL             = 'claude-sonnet-4-6';
 
 // Token budgets — tighter for main call since we're skipping counter-args
 const MAX_TOKENS_ANALYZE   = 2048;
@@ -134,30 +137,19 @@ REQUIRED OUTPUT SCHEMA:
 
 // ─── BRAVE SEARCH ──────────────────────────────────────────────────────────────
 async function executeWebSearch(query) {
-  if (!BRAVE_API_KEY || BRAVE_API_KEY.startsWith('TODO')) {
-    return JSON.stringify({ note: 'Web search not configured.', results: [] });
-  }
-
   try {
-    const url = `https://api.search.brave.com/res/v1/web/search?q=${encodeURIComponent(query)}&count=5`;
-    const response = await fetch(url, {
+    const response = await fetch(`${SUPABASE_FUNCTIONS_URL}/brave-search`, {
+      method: 'POST',
       headers: {
-        'Accept': 'application/json',
-        'Accept-Encoding': 'gzip',
-        'X-Subscription-Token': BRAVE_API_KEY,
+        'Content-Type':  'application/json',
+        'Authorization': `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
       },
+      body: JSON.stringify({ query }),
     });
 
-    if (!response.ok) throw new Error(`Brave API error: ${response.status}`);
+    if (!response.ok) throw new Error(`brave-search proxy error: ${response.status}`);
 
-    const data = await response.json();
-    const results = (data.web?.results || []).slice(0, 5).map(r => ({
-      title:       r.title,
-      url:         r.url,
-      description: r.description || '',
-      published:   r.page_age    || '',
-    }));
-
+    const results = await response.json();
     return JSON.stringify(results);
   } catch (err) {
     console.error('[Prism] Search error:', err);
@@ -176,13 +168,11 @@ async function executeWebSearch(query) {
  */
 async function runAgenticLoop(messages, maxTurns, maxTokens) {
   for (let turn = 0; turn < maxTurns; turn++) {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await fetch(`${SUPABASE_FUNCTIONS_URL}/claude-proxy`, {
       method: 'POST',
       headers: {
-        'Content-Type':                          'application/json',
-        'x-api-key':                             CLAUDE_API_KEY,
-        'anthropic-version':                     '2023-06-01',
-        'anthropic-dangerous-direct-browser-access': 'true',
+        'Content-Type':  'application/json',
+        'Authorization': `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
       },
       body: JSON.stringify({
         model:      CLAUDE_MODEL,
@@ -235,13 +225,11 @@ async function runAgenticLoop(messages, maxTurns, maxTokens) {
     content: 'You have completed your research. Now compile everything into the final JSON response. Return ONLY the raw JSON object — no markdown fences, no explanation.',
   });
 
-  const finalRes = await fetch('https://api.anthropic.com/v1/messages', {
+  const finalRes = await fetch(`${SUPABASE_FUNCTIONS_URL}/claude-proxy`, {
     method: 'POST',
     headers: {
-      'Content-Type':                          'application/json',
-      'x-api-key':                             CLAUDE_API_KEY,
-      'anthropic-version':                     '2023-06-01',
-      'anthropic-dangerous-direct-browser-access': 'true',
+      'Content-Type':  'application/json',
+      'Authorization': `Bearer ${SUPABASE_PUBLISHABLE_KEY}`,
     },
     body: JSON.stringify({
       model:      CLAUDE_MODEL,

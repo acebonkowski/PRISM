@@ -28,7 +28,11 @@ fs.readFileSync(envPath, 'utf8')
   });
 
 // ── Validate ─────────────────────────────────────────────────────────────────
-const required = ['CLAUDE_API_KEY', 'BRAVE_API_KEY'];
+// Claude and Brave keys now live server-side as Supabase Edge Function
+// secrets (see supabase/functions/claude-proxy and brave-search) — only the
+// project URL and publishable key get embedded in the extension bundle,
+// and both are meant to be public.
+const required = ['VITE_SUPABASE_URL', 'VITE_SUPABASE_PUBLISHABLE_KEY'];
 const missing  = required.filter(k => !env[k]);
 if (missing.length) {
   console.error(`❌  Missing keys in .env.local: ${missing.join(', ')}`);
@@ -40,8 +44,8 @@ const templatePath = path.join(__dirname, 'extension', 'background.template.js')
 const outputPath   = path.join(__dirname, 'extension', 'background.js');
 
 let src = fs.readFileSync(templatePath, 'utf8');
-src = src.replace(/__CLAUDE_API_KEY__/g, env.CLAUDE_API_KEY);
-src = src.replace(/__BRAVE_API_KEY__/g,  env.BRAVE_API_KEY);
+src = src.replace(/__SUPABASE_URL__/g,      env.VITE_SUPABASE_URL);
+src = src.replace(/__SUPABASE_PUBLISHABLE_KEY__/g, env.VITE_SUPABASE_PUBLISHABLE_KEY);
 
 fs.writeFileSync(outputPath, src, 'utf8');
 console.log('✅  extension/background.js built from .env.local');

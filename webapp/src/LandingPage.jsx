@@ -375,7 +375,7 @@ function HowItWorks() {
   return (
     <section className="l-section l-how" id="how-it-works">
       <div className="l-container">
-        <h2 className="l-section__title">Three clicks. Full picture.</h2>
+        <h2 className="l-section__title">Fake news spread 6x faster than the truth. <br></br> But within 3 clicks, you get the full picture.</h2>
         <div className="l-steps">
           {STEPS.map((step, i) => (
             <div
@@ -394,33 +394,18 @@ function HowItWorks() {
   );
 }
 
-// ─── Score Ring (animates on scroll entry) ────────────────────────────────────
-function ScoreRing({ score = 74 }) {
+// ─── Score Bar (matches extension panel style) ────────────────────────────────
+function ScoreBar({ score = 42, verdict = 'Contested', color = '#7B6EF6' }) {
   const [ref, inView] = useInView();
-  const r    = 38;
-  const circ = 2 * Math.PI * r;
-  const offset = inView ? circ * (1 - score / 100) : circ;
-
   return (
-    <div className="l-score-ring-wrap" ref={ref}>
-      <svg width="100" height="100" viewBox="0 0 100 100">
-        <circle cx="50" cy="50" r={r} fill="none" stroke="rgba(37,99,235,0.14)" strokeWidth="8" />
-        <circle
-          cx="50" cy="50" r={r}
-          fill="none" stroke="#2563EB" strokeWidth="8"
-          strokeLinecap="round"
-          strokeDasharray={circ}
-          strokeDashoffset={offset}
-          style={{
-            transform: 'rotate(-90deg)',
-            transformOrigin: '50px 50px',
-            transition: inView ? 'stroke-dashoffset 1.2s cubic-bezier(0.4,0,0.2,1)' : 'none',
-          }}
+    <div className="l-score-bar" ref={ref} style={{ '--sb-color': color }}>
+      <p className="l-score-bar__fraction">{score}/100</p>
+      <p className="l-score-bar__verdict">{verdict}</p>
+      <div className="l-score-bar__track">
+        <div
+          className="l-score-bar__fill"
+          style={{ width: inView ? `${score}%` : '0%' }}
         />
-      </svg>
-      <div className="l-score-ring-center">
-        <span className="l-score-ring-num">{score}</span>
-        <span className="l-score-ring-lbl">Verified</span>
       </div>
     </div>
   );
@@ -432,12 +417,14 @@ const FEATURES = [
     label: 'Verifiability Score',
     title: 'Verifiability Score',
     desc: 'Every article gets a 0–100 score with a plain-language explanation and color-coded verdict. Results load in under 8 seconds — no tab switching, no manual searching. Just signal.',
-    visual: <ScoreRing score={74} />,
+    visual: <ScoreBar />,
+    wide: false,
   },
   {
     label: 'Challenge Argument',
     title: 'Challenge Argument',
     desc: 'An on-demand AI pass that steel-mans the strongest opposing perspective — written as a reasonable, intelligent person who disagrees would argue. Backed by 3–5 real sourced links.',
+    wide: true,
     visual: (
       <div className="l-feat-visual l-feat-visual--counter">
         <div className="l-feat-counter-header">
@@ -460,6 +447,7 @@ const FEATURES = [
     label: 'Source & Summary',
     title: 'Source & Summary',
     desc: 'Live web searches surface real supporting, opposing, and neutral sources — each labeled and linked. Plus a concise, editorially neutral 40-word summary that cuts through framing before you even start reading.',
+    wide: true,
     visual: (
       <div className="l-feat-visual">
         {[
@@ -482,6 +470,7 @@ const FEATURES = [
     label: 'Share & Export',
     title: 'Share & Export',
     desc: 'One click exports the full analysis — score, summary, sources, counter-argument — as a shareable link or print-ready PDF. Every report gets a unique public URL so you can send context, not just opinions.',
+    wide: false,
     visual: (
       <div className="l-feat-visual" style={{ alignItems: 'center' }}>
         <div className="l-feat-url">prism.app/report/a3f9b2</div>
@@ -496,12 +485,11 @@ function Features() {
     <section className="l-section l-features" id="features">
       <div className="l-container">
         <h2 className="l-section__title">Everything you need to read critically.</h2>
-        <p className="l-section__sub">Prism runs a full analysis in one click — here's what you get.</p>
+        <p className="l-section__sub">Most fact-checkers require you to already be skeptical and to leave the page. <br></br>Instead, Prism runs a full analysis in one click.</p>
         <div className="l-features__grid">
           {FEATURES.map(f => (
-            <div className="l-feature-card" key={f.label}>
+            <div className={`l-feature-card${f.wide ? ' l-feature-card--wide' : ''}`} key={f.label}>
               <div className="l-feature-card__visual">{f.visual}</div>
-              <div className="l-feature-card__label">{f.label}</div>
               <h3 className="l-feature-card__title">{f.title}</h3>
               <p className="l-feature-card__desc">{f.desc}</p>
             </div>
